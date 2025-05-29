@@ -16,7 +16,6 @@ Kraken is a decentralized messaging platform that combines blockchain technology
 - **Styling**: Tailwind CSS
 - **Authentication**: MetaMask + Supabase
 - **Database**: Supabase
-- **Storage**: IPFS (Web3.Storage)
 - **Real-time Communication**: WebRTC, GUN
 - **Blockchain Integration**: ethers.js
 - **State Management**: Zustand
