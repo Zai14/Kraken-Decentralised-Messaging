@@ -1,0 +1,203 @@
+# Kraken - Secure Web3 Messaging Platform
+
+## Overview
+Kraken is a decentralized messaging platform that combines blockchain technology with end-to-end encryption to provide secure communication. Built with React, TypeScript, and Web3 technologies, it offers a modern, secure messaging experience for the Web3 era.
+
+## Key Features
+- 🔐 End-to-End Encryption
+- 👛 Wallet Authentication (MetaMask)
+- 💬 Direct & Group Messaging
+- 📎 Secure File Sharing
+- 📊 Crypto Price Tracking
+- 👤 Profile Management
+
+## Technology Stack
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: Tailwind CSS
+- **Authentication**: MetaMask + Supabase
+- **Database**: Supabase
+- **Storage**: IPFS (Web3.Storage)
+- **Real-time Communication**: WebRTC, GUN
+- **Blockchain Integration**: ethers.js
+- **State Management**: Zustand
+- **Charts**: Lightweight Charts
+
+## Security Protocols
+
+### Message Encryption
+1. **Key Exchange Protocol**
+   - ECDH (Elliptic Curve Diffie-Hellman) for secure key exchange
+   - P-256 curve for key generation
+   - Unique session keys for each conversation
+   - Perfect Forward Secrecy (PFS) support
+
+2. **Message Encryption Protocol**
+   - AES-GCM (256-bit) for message encryption
+   - Unique IV (Initialization Vector) for each message
+   - Authenticated encryption ensuring message integrity
+   - Zero-knowledge encryption (server cannot read messages)
+
+3. **Digital Signatures**
+   - Messages signed using Ethereum wallet (ECDSA)
+   - Signature verification on recipient side
+   - Prevents message tampering and ensures authenticity
+   - Non-repudiation support
+
+### Communication Protocols
+
+1. **Primary Channel (WebRTC)**
+   - DTLS (Datagram Transport Layer Security) for secure connection
+   - ICE protocol for NAT traversal
+   - SCTP for reliable data channel
+   - Built-in encryption for media streams
+
+2. **Fallback Channel (GUN)**
+   - SEA (Security, Encryption, Authorization) protocol
+   - Distributed data sync with encryption
+   - Peer-to-peer message propagation
+   - Offline message support
+
+3. **File Transfer Protocol**
+   - End-to-end encrypted file transfer
+   - Content-addressable storage via IPFS
+   - Chunked upload with integrity verification
+   - Encrypted metadata storage
+
+### Authentication Protocol
+1. **Wallet Authentication**
+   - EIP-191 compliant message signing
+   - Challenge-response authentication
+   - Session key rotation
+   - Wallet address verification
+
+2. **Session Management**
+   - JWT-based session tokens
+   - Secure token storage
+   - Automatic session renewal
+   - Multi-device session support
+
+## Project Structure
+
+### Core Components
+- `src/App.tsx`: Main application component, handles routing and authentication
+- `src/components/Layout.tsx`: Main layout with navigation and responsive design
+
+### Pages
+- `src/pages/Login.tsx`: Wallet authentication with MetaMask
+- `src/pages/Home.tsx`: Dashboard with feature overview
+- `src/pages/Messages.tsx`: Messaging interface
+- `src/pages/Wallet.tsx`: Crypto portfolio and market data
+- `src/pages/Search.tsx`: User search functionality
+- `src/pages/Profile.tsx`: User profile management
+
+### Components
+- `CreateGroupChat.tsx`: Group chat creation interface
+- `FileUpload.tsx`: File attachment handling
+- `WalletConnect.tsx`: MetaMask integration
+
+### Libraries
+- `src/lib/crypto.ts`: Encryption and key management
+- `src/lib/gun.ts`: Decentralized database integration
+- `src/lib/ipfs.ts`: IPFS file storage
+- `src/lib/messageManager.ts`: Message handling and state
+- `src/lib/messageStore.ts`: Message persistence
+- `src/lib/p2p.ts`: WebRTC peer-to-peer communication
+- `src/lib/socketClient.ts`: Real-time messaging
+- `src/lib/supabase.ts`: Database configuration
+- `src/lib/web3.ts`: Blockchain utilities
+
+### Database Schema
+The Supabase database includes tables for:
+- `profiles`: User profiles and settings
+- `conversations`: Chat conversations
+- `messages`: Individual messages
+- `attachments`: File attachments
+- `signals`: WebRTC signaling
+
+## Security Features
+1. **End-to-End Encryption**
+   - Messages encrypted using AES-GCM
+   - Key exchange via ECDH
+   - Message signing with wallet signatures
+
+2. **Authentication**
+   - MetaMask wallet signatures
+   - Supabase session management
+   - Row Level Security (RLS) policies
+
+3. **File Security**
+   - Encrypted file storage on IPFS
+   - Secure file sharing with access control
+   - Content verification via checksums
+
+## Communication Architecture
+1. **Primary Channel**
+   - WebRTC for direct P2P communication
+   - End-to-end encrypted messaging
+   - Real-time file sharing
+
+2. **Fallback Mechanism**
+   - GUN for decentralized message storage
+   - IPFS for file persistence
+   - Socket.io for real-time updates
+
+## State Management
+- Zustand for global state
+- React Context for auth state
+- Local storage for persistence
+- Real-time sync with Supabase
+
+## Styling
+- Responsive design with Tailwind CSS
+- Dark mode by default
+- Custom animations
+- Lucide icons
+
+## Environment Variables
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_key
+VITE_WEB3_STORAGE_TOKEN=your_web3_storage_token
+VITE_SOCKET_URL=your_socket_url
+```
+
+## Getting Started
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables
+4. Start development server: `npm run dev`
+
+## Build & Deployment
+- Build command: `npm run build`
+- Output directory: `dist`
+- Deployable to Netlify or similar platforms
+
+## Security Considerations
+- All wallet addresses are normalized to lowercase
+- Messages are signed with wallet signatures
+- File uploads are verified and encrypted
+- P2P connections are authenticated
+- Rate limiting on API endpoints
+- SQL injection prevention via Supabase
+
+## Future Enhancements
+- Multi-wallet support
+- Token gating for private channels
+- Voice/video calls
+- Message reactions
+- Smart contract integration
+- Mobile app version
+
+## Performance Optimizations
+- Lazy loading of routes
+- Image optimization
+- WebRTC connection pooling
+- Message pagination
+- Efficient state updates
+- Service worker caching
+
+## Contributing
+Contributions are welcome! Please read our contributing guidelines and code of conduct before submitting pull requests.
+
+## License
+MIT License - see LICENSE file for details
