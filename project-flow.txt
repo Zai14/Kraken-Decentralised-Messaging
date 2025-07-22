@@ -1,0 +1,308 @@
+# Kraken Messaging App - Complete Project Flow Analysis
+
+## PROJECT OVERVIEW FLOW
+```
+User Opens App → Authentication Check → Main Dashboard → Messaging Features
+```
+
+## DETAILED USER JOURNEY FLOW
+
+### 1. INITIAL ACCESS FLOW
+```
+User visits website
+↓
+Landing page loads with Kraken branding
+↓
+System checks for existing authentication
+↓
+If authenticated: Redirect to dashboard
+If not authenticated: Show login page
+```
+
+### 2. AUTHENTICATION FLOW
+```
+User clicks "Connect with MetaMask"
+↓
+MetaMask extension opens
+↓
+User approves wallet connection
+↓
+System captures wallet address
+↓
+User chooses: Sign Up (new) OR Login (existing)
+↓
+IF SIGN UP:
+  → ID verification screen appears
+  → User selects PAN Card verification
+  → User fills personal details (name, DOB, phone, email)
+  → System stores verification data
+  → Creates Supabase account with wallet email format
+  → Creates user profile in database
+↓
+IF LOGIN:
+  → System attempts Supabase login with wallet credentials
+  → Verifies existing account
+↓
+Authentication successful → Store session → Redirect to dashboard
+```
+
+### 3. MAIN DASHBOARD FLOW
+```
+User lands on home page
+↓
+Sidebar navigation appears (Home, Messages, Profile, Wallet, Logout)
+↓
+Home page shows:
+  - Wallet connection status
+  - Quick action buttons
+  - Security features overview
+```
+
+### 4. MESSAGING SYSTEM INITIALIZATION FLOW
+```
+User clicks Messages
+↓
+System initializes messaging service
+↓
+Discovers Gun.js peer network
+↓
+Generates encryption key pairs (ECDH)
+↓
+Publishes public key to Gun.js network
+↓
+Loads existing conversations from local storage
+↓
+Sets up real-time message listeners
+↓
+Establishes presence system (online/offline status)
+↓
+Messages interface ready
+```
+
+### 5. SENDING MESSAGE FLOW
+```
+User enters recipient wallet address
+↓
+User types message content
+↓
+User chooses encryption (ON/OFF toggle)
+↓
+User clicks send
+↓
+IF ENCRYPTION ENABLED:
+  → System fetches recipient's public key from Gun.js
+  → Generates shared secret using ECDH
+  → Encrypts message with AES-GCM
+  → Creates encrypted message package
+↓
+IF ENCRYPTION DISABLED:
+  → Message remains as plain text
+↓
+System sends message via Gun.js network through multiple paths:
+  - Recipient's inbox
+  - Global broadcast
+  - Direct message path
+↓
+Message stored locally
+↓
+Message appears in conversation
+↓
+Status updates: Sending → Sent → Delivered
+```
+
+### 6. RECEIVING MESSAGE FLOW
+```
+Gun.js network receives message
+↓
+Message listeners detect new message
+↓
+System checks if message is encrypted
+↓
+IF ENCRYPTED:
+  → Retrieves sender's public key
+  → Generates shared secret
+  → Attempts decryption with AES-GCM
+  → IF SUCCESS: Shows decrypted content
+  → IF FAILS: Shows "Ephemeral Message: No Longer Available"
+↓
+IF UNENCRYPTED:
+  → Shows message content directly
+↓
+Message added to conversation
+↓
+Local storage updated
+↓
+UI refreshes to show new message
+```
+
+### 7. CONVERSATION MANAGEMENT FLOW
+```
+Messages between two users automatically create conversation
+↓
+System groups messages by participants
+↓
+Conversation list shows:
+  - Participant names (shortened wallet addresses)
+  - Last message preview
+  - Timestamp
+  - Online status indicators
+↓
+User can select conversation to view full message history
+```
+
+### 8. PROFILE MANAGEMENT FLOW
+```
+User clicks Profile
+↓
+System loads profile from database
+↓
+Shows current profile information:
+  - Wallet address
+  - Username
+  - Bio
+  - Avatar
+↓
+User can edit and save changes
+↓
+Updates stored in Supabase database
+```
+
+### 9. WALLET FEATURES FLOW
+```
+User clicks Wallet
+↓
+System fetches cryptocurrency data from CoinGecko API
+↓
+Displays market information:
+  - Top cryptocurrencies
+  - Price charts
+  - Market statistics
+↓
+User can select different cryptocurrencies
+↓
+Charts update with price history
+↓
+Real-time data refreshes every minute
+```
+
+### 10. ENCRYPTION KEY MANAGEMENT FLOW
+```
+System generates ECDH key pairs on first use
+↓
+Private keys stored locally (never transmitted)
+↓
+Public keys published to Gun.js network
+↓
+Keys refresh every 5 minutes for security
+↓
+Shared secrets generated per conversation
+↓
+Failed decryptions trigger key refresh and retry
+```
+
+### 11. OFFLINE/ONLINE HANDLING FLOW
+```
+System monitors Gun.js connection status
+↓
+IF ONLINE:
+  → Messages send immediately
+  → Real-time delivery
+  → Presence updates
+↓
+IF OFFLINE:
+  → Messages queued locally
+  → Retry mechanism activates
+  → Background reconnection attempts
+  → Messages deliver when connection restored
+```
+
+### 12. ERROR HANDLING FLOW
+```
+Message send fails
+↓
+System marks message as "failed"
+↓
+Automatic retry mechanism (up to 3 attempts)
+↓
+If encryption fails:
+  → Falls back to unencrypted
+  → Notifies user of encryption failure
+↓
+If decryption fails:
+  → Stores as pending decryption
+  → Retries with fresh keys
+  → Shows fallback message if still fails
+```
+
+### 13. LOGOUT FLOW
+```
+User clicks logout
+↓
+System signs out from Supabase
+↓
+Clears local storage
+↓
+Destroys messaging service
+↓
+Marks user as offline in presence system
+↓
+Redirects to login page
+```
+
+## TECHNICAL ARCHITECTURE FLOW
+
+### Database Flow:
+```
+Supabase PostgreSQL
+↓
+Row Level Security policies
+↓
+Tables: profiles, conversations, messages, attachments
+↓
+Real-time subscriptions for live updates
+```
+
+### P2P Network Flow:
+```
+Gun.js peer discovery
+↓
+Multiple relay servers connection
+↓
+Distributed message storage
+↓
+Real-time synchronization
+```
+
+### Security Flow:
+```
+Wallet-based authentication
+↓
+ECDH key exchange
+↓
+AES-GCM encryption
+↓
+Perfect forward secrecy
+↓
+No server-side key storage
+```
+
+### Storage Flow:
+```
+Local browser storage (messages, keys)
+↓
+Supabase database (profiles, metadata)
+↓
+Gun.js network (public keys, messages)
+↓
+Automatic cleanup and optimization
+```
+
+## COMPLETE USER EXPERIENCE FLOW SUMMARY
+```
+Website Visit → Wallet Connect → Authentication → Dashboard → 
+Message Composition → Encryption → P2P Transmission → 
+Real-time Delivery → Decryption → Conversation Display → 
+Profile Management → Market Data → Logout
+```
+
+This flow ensures secure, decentralized messaging with wallet-based identity while maintaining user privacy and data security throughout the entire application lifecycle.

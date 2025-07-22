@@ -1,0 +1,276 @@
+# Kraken - Decentralized Messaging Platform
+
+## Project Flowchart (Simplified for General Understanding)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                KRAKEN MESSAGING APP                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+1. USER AUTHENTICATION FLOW
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
+   │   Landing   │───▶│   Connect    │───▶│   Sign Up /     │───▶│   Main App   │
+   │    Page     │    │   MetaMask   │    │     Login       │    │   Dashboard  │
+   └─────────────┘    └──────────────┘    └─────────────────┘    └──────────────┘
+                             │                      │
+                             ▼                      ▼
+                      ┌──────────────┐    ┌─────────────────┐
+                      │   Wallet     │    │   ID Verification│
+                      │  Connection  │    │   (PAN Card)    │
+                      └──────────────┘    └─────────────────┘
+                             │                      │
+                             ▼                      ▼
+                      ┌──────────────┐    ┌─────────────────┐
+                      │  Supabase    │    │   Profile       │
+                      │    Auth      │    │   Creation      │
+                      └──────────────┘    └─────────────────┘
+
+2. MESSAGING SYSTEM FLOW
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   Message   │───▶│   Gun.js     │───▶│   Real-time     │
+   │   Compose   │    │   P2P Send   │    │   Delivery      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Encryption  │    │   Local      │    │   Recipient     │
+   │  (Optional) │    │   Storage    │    │   Receives      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   ECDH Key  │    │   Message    │    │   Decryption    │
+   │  Exchange   │    │   Backup     │    │   & Display     │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+3. DATA STORAGE ARCHITECTURE
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   User      │───▶│   Supabase   │───▶│   Database      │
+   │   Data      │    │   Backend    │    │   Tables        │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │  Profiles   │    │ Conversations│    │   Messages      │
+   │   Table     │    │    Table     │    │    Table        │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │  Username   │    │ Participants │    │   Content       │
+   │    Bio      │    │ Last Message │    │   Encryption    │
+   │   Avatar    │    │   Metadata   │    │    Status       │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+4. SECURITY & ENCRYPTION FLOW
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   User A    │───▶│   Public Key │───▶│   User B        │
+   │  Generates  │    │   Exchange   │    │   Receives      │
+   │  Key Pair   │    │  (Gun.js)    │    │   Public Key    │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   ECDH      │    │   Shared     │    │   AES-GCM       │
+   │ Algorithm   │    │    Key       │    │  Encryption     │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │  Message    │    │   Encrypted  │    │   Secure        │
+   │ Encryption  │    │   Content    │    │ Transmission    │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+5. APPLICATION FEATURES FLOW
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │    Home     │───▶│   Messages   │───▶│   Profile       │
+   │ Dashboard   │    │    Page      │    │   Settings      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   Wallet    │    │ Conversation │    │   Avatar        │
+   │   Viewer    │    │    List      │    │   Upload        │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Crypto      │    │   Message    │    │   Bio &         │
+   │ Prices      │    │   History    │    │   Username      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+```
+
+## UNUSED/UNNECESSARY FILES IN PROJECT
+
+### Files that are never used or imported:
+1. **src/components/CreateGroupChat.tsx** - Group chat functionality not implemented
+2. **src/components/FileUpload.tsx** - File upload feature not used in messaging
+3. **src/components/WalletConnect.tsx** - Replaced by login system
+4. **src/lib/crypto.ts** - Duplicate crypto functionality (replaced by messagingService)
+5. **src/lib/ipfs.ts** - IPFS integration not implemented
+6. **src/lib/web3.ts** - Some functions not used (uploadToIPFS)
+7. **src/pages/Search.tsx** - Search functionality not implemented
+8. **errors.txt** - Documentation file, not part of app
+9. **gunjs&user authentication.txt** - Documentation file, not part of app
+10. **eslint.config.js** - Development tool, not used in production
+
+### Database migrations that could be consolidated:
+- Multiple migration files (20+ files) that could be merged into fewer migrations
+- Some migrations fix issues from previous migrations (could be simplified)
+
+### Redundant or unused dependencies in package.json:
+- **react-query** - Not used in the current implementation
+- **web3.storage** - IPFS functionality not implemented
+- **viem** and **wagmi** - Web3 libraries not used
+- **socket.io-client** - Not used (Gun.js handles real-time)
+- **lightweight-charts** - Only used in wallet page
+- **zustand** - State management not implemented
+
+---
+
+# README
+
+## Kraken - Decentralized Messaging Platform
+
+Kraken is a secure, decentralized messaging application built on Web3 technologies. It enables users to send encrypted messages using their Ethereum wallet addresses as identities, with real-time peer-to-peer communication powered by Gun.js.
+
+### 🚀 Features
+
+- **Wallet-Based Authentication**: Connect using MetaMask wallet
+- **End-to-End Encryption**: Messages encrypted using ECDH key exchange and AES-GCM
+- **Decentralized Messaging**: Peer-to-peer communication via Gun.js network
+- **Real-time Communication**: Instant message delivery and presence detection
+- **Government ID Verification**: PAN card verification for enhanced security
+- **Cryptocurrency Market Data**: Real-time crypto prices and charts
+- **Profile Management**: Customizable user profiles with avatars
+- **Message History**: Persistent local storage with cloud backup
+
+### 🛠️ Technology Stack
+
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **Authentication**: Supabase Auth with wallet integration
+- **Database**: Supabase PostgreSQL with Row Level Security
+- **P2P Network**: Gun.js for decentralized messaging
+- **Encryption**: Web Crypto API (ECDH + AES-GCM)
+- **Wallet Integration**: MetaMask via ethers.js
+- **Charts**: Lightweight Charts for market data
+- **Deployment**: Netlify
+
+### 📋 Prerequisites
+
+- Node.js 18+ and npm
+- MetaMask browser extension
+- Modern web browser with Web Crypto API support
+
+### 🔧 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd kraken-messaging
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env` file with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Database Setup**
+   - Create a new Supabase project
+   - Run the migration files in the `supabase/migrations` folder
+   - Ensure Row Level Security is enabled
+
+5. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+### 🚀 Deployment
+
+The application is deployed on Netlify at: https://resonant-unicorn-0d783d.netlify.app
+
+To deploy your own instance:
+1. Build the project: `npm run build`
+2. Deploy the `dist` folder to your hosting provider
+3. Configure environment variables on your hosting platform
+
+### 🔐 Security Features
+
+- **End-to-End Encryption**: All messages are encrypted client-side
+- **Key Management**: ECDH key pairs generated per user
+- **Perfect Forward Secrecy**: Unique encryption keys per conversation
+- **Wallet Signatures**: Message authenticity via wallet signatures
+- **Row Level Security**: Database access controlled by user authentication
+
+### 📱 Usage
+
+1. **Connect Wallet**: Click "Connect with MetaMask" and approve the connection
+2. **Choose Authentication**: Select "Sign Up" for new users or "Login" for existing users
+3. **ID Verification**: Complete PAN card verification (for new users)
+4. **Start Messaging**: Navigate to Messages and enter a recipient's wallet address
+5. **Send Messages**: Choose between encrypted or unencrypted messages
+6. **View Profile**: Manage your profile settings and avatar
+
+### 🔧 Configuration
+
+#### Gun.js Peers
+The application automatically discovers live Gun.js peers for optimal connectivity. You can modify the peer list in `src/lib/messagingService.ts`.
+
+#### Encryption Settings
+Encryption is enabled by default but can be toggled per message. The system uses:
+- **ECDH P-256** for key exchange
+- **AES-GCM 256-bit** for message encryption
+- **Random IV** for each encrypted message
+
+### 🐛 Troubleshooting
+
+#### Common Issues:
+
+1. **Messages not sending**: Check Gun.js peer connectivity and internet connection
+2. **Encryption failures**: Ensure both users have published their public keys
+3. **Authentication issues**: Verify Supabase configuration and wallet connection
+4. **Database errors**: Check RLS policies and user permissions
+
+#### Debug Mode:
+Enable console logging by opening browser developer tools to see detailed connection and encryption status.
+
+### 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
+
+### 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+### 👨‍💻 Author
+
+**Za.i.14** - Creator and Lead Developer
+
+### 🙏 Acknowledgments
+
+- Gun.js team for the decentralized database
+- Supabase for the backend infrastructure
+- MetaMask for wallet integration
+- CoinGecko for cryptocurrency market data
+
+### 📞 Support
+
+For support and questions:
+- Open an issue on GitHub
+- Contact the development team
+- Check the documentation for common solutions
+
+---
+
+*Built with ❤️ for the decentralized web*

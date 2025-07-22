@@ -1,0 +1,251 @@
+# ECDH-AESGCM Cryptographic Flow in Kraken Messaging
+
+## Overview
+Kraken uses a combination of ECDH (Elliptic Curve Diffie-Hellman) key exchange and AES-GCM (Advanced Encryption Standard - Galois/Counter Mode) encryption to provide end-to-end encrypted messaging over the Gun.js peer-to-peer network.
+
+## Cryptographic Components
+
+### 1. ECDH (Elliptic Curve Diffie-Hellman)
+- **Purpose**: Secure key exchange between two parties
+- **Curve**: P-256 (secp256r1)
+- **Key Size**: 256-bit private keys, 65-byte uncompressed public keys
+- **Security**: Provides perfect forward secrecy
+
+### 2. AES-GCM (Advanced Encryption Standard - Galois/Counter Mode)
+- **Purpose**: Symmetric encryption of message content
+- **Key Size**: 256-bit
+- **Features**: 
+  - Authenticated encryption (confidentiality + authenticity)
+  - Built-in integrity checking
+  - Unique IV (Initialization Vector) per message
+
+## Complete Cryptographic Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           KRAKEN ECDH-AESGCM FLOW                              │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+1. USER INITIALIZATION
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   User A    │    │   User B     │    │   Gun.js        │
+   │  Connects   │    │  Connects    │    │   Network       │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Generate    │    │ Generate     │    │   Relay         │
+   │ ECDH Key    │    │ ECDH Key     │    │   Servers       │
+   │ Pair        │    │ Pair         │    │   Available     │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Private Key │    │ Private Key  │    │ gun-manhattan   │
+   │ (256-bit)   │    │ (256-bit)    │    │ gun-us          │
+   │ STORED      │    │ STORED       │    │ gun-eu          │
+   │ LOCALLY     │    │ LOCALLY      │    │ gun-relay       │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Public Key  │    │ Public Key   │    │ Peer Discovery  │
+   │ (65 bytes)  │    │ (65 bytes)   │    │ & Connection    │
+   │ Base64      │    │ Base64       │    │ Establishment   │
+   │ Encoded     │    │ Encoded      │    │                 │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+2. PUBLIC KEY PUBLICATION
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   User A    │───▶│   Gun.js     │───▶│   User B        │
+   │ Publishes   │    │   Network    │    │ Retrieves       │
+   │ Public Key  │    │              │    │ Public Key      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ gun.get     │    │ Distributed  │    │ gun.get         │
+   │ ('kraken_   │    │ Storage      │    │ ('kraken_       │
+   │ keys')      │    │ Across       │    │ keys')          │
+   │ .get(addr)  │    │ Peers        │    │ .get(addr)      │
+   │ .put(data)  │    │              │    │ .once(callback) │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Key Data:   │    │ Replicated   │    │ Retrieved:      │
+   │ {           │    │ Across       │    │ {               │
+   │  publicKey, │    │ Multiple     │    │  publicKey,     │
+   │  timestamp, │    │ Gun Peers    │    │  timestamp,     │
+   │  address    │    │              │    │  address        │
+   │ }           │    │              │    │ }               │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+3. SHARED SECRET GENERATION (ECDH)
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │   User A    │    │   ECDH       │    │   User B        │
+   │ Private Key │───▶│ Algorithm    │◀───│ Private Key     │
+   │ +           │    │              │    │ +               │
+   │ User B      │    │              │    │ User A          │
+   │ Public Key  │    │              │    │ Public Key      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Shared      │    │ Same Shared  │    │ Shared          │
+   │ Secret      │    │ Secret       │    │ Secret          │
+   │ (256-bit)   │    │ Generated    │    │ (256-bit)       │
+   │ IDENTICAL   │    │ by Both      │    │ IDENTICAL       │
+   │             │    │ Parties      │    │                 │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+4. AES-GCM KEY DERIVATION
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ ECDH Shared │───▶│ Key          │───▶│ AES-256-GCM     │
+   │ Secret      │    │ Derivation   │    │ Encryption Key  │
+   │ (256-bit)   │    │ Function     │    │ (256-bit)       │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Web Crypto  │    │ ECDH.derive  │    │ Ready for       │
+   │ API         │    │ Key()        │    │ Message         │
+   │ deriveKey() │    │ Algorithm    │    │ Encryption      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+5. MESSAGE ENCRYPTION PROCESS
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Plain Text  │───▶│ AES-GCM      │───▶│ Encrypted       │
+   │ Message     │    │ Encryption   │    │ Message         │
+   │ "Hello!"    │    │              │    │ + Auth Tag      │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Generate    │    │ Encrypt with │    │ Output:         │
+   │ Random IV   │    │ AES-256-GCM  │    │ {               │
+   │ (12 bytes)  │    │ + IV         │    │  ciphertext,    │
+   │             │    │ + Auth Key   │    │  iv             │
+   │             │    │              │    │ }               │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+6. MESSAGE TRANSMISSION VIA GUN.JS
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Encrypted   │───▶│ Gun.js       │───▶│ Multiple        │
+   │ Message     │    │ Network      │    │ Delivery        │
+   │ Package     │    │ Transmission │    │ Paths           │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Message     │    │ Sent via:    │    │ Recipient       │
+   │ Data:       │    │ • Inbox      │    │ Receives via:   │
+   │ {           │    │ • Global     │    │ • Inbox         │
+   │  id,        │    │ • Direct     │    │ • Global        │
+   │  sender,    │    │ Broadcast    │    │ • Direct        │
+   │  receiver,  │    │ Paths        │    │ Listeners       │
+   │  encrypted  │    │              │    │                 │
+   │  Content,   │    │              │    │                 │
+   │  iv,        │    │              │    │                 │
+   │  timestamp  │    │              │    │                 │
+   │ }           │    │              │    │                 │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+
+7. MESSAGE DECRYPTION PROCESS
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Received    │───▶│ Retrieve     │───▶│ AES-GCM         │
+   │ Encrypted   │    │ Shared Key   │    │ Decryption      │
+   │ Message     │    │ for Sender   │    │                 │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Extract:    │    │ Use Cached   │    │ Decrypt with:   │
+   │ • cipher    │    │ or Generate  │    │ • Shared Key    │
+   │ • iv        │    │ Fresh Shared │    │ • IV            │
+   │ • sender    │    │ Key          │    │ • Ciphertext    │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+          │                   │                      │
+          ▼                   ▼                      ▼
+   ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+   │ Verify      │    │ Authenticate │    │ Plain Text      │
+   │ Auth Tag    │    │ Message      │    │ Message         │
+   │ (Integrity) │    │ Integrity    │    │ "Hello!"        │
+   └─────────────┘    └──────────────┘    └─────────────────┘
+```
+
+## Security Features
+
+### 1. Perfect Forward Secrecy
+- Each conversation uses unique ECDH key pairs
+- Compromising one conversation doesn't affect others
+- Keys are regenerated periodically
+
+### 2. Message Authenticity
+- AES-GCM provides built-in authentication
+- Prevents message tampering
+- Ensures message came from claimed sender
+
+### 3. Replay Protection
+- Unique message IDs prevent replay attacks
+- Timestamps help detect old messages
+- IV uniqueness prevents identical ciphertexts
+
+### 4. Key Freshness
+- Public keys are refreshed every 5 minutes
+- Shared keys are regenerated when public keys update
+- Failed decryptions trigger key refresh
+
+
+## Error Handling & Recovery
+
+### 1. Decryption Failures
+- Messages marked as "pending_decryption"
+- Automatic retry with fresh keys
+- Fallback to unencrypted delivery notification
+
+### 2. Key Exchange Failures
+- Graceful fallback to unencrypted messages
+- User notification of encryption status
+- Automatic retry mechanisms
+
+### 3. Network Failures
+- Message queuing for offline recipients
+- Multiple delivery paths for redundancy
+- Automatic peer discovery and reconnection
+
+## Performance Optimizations
+
+### 1. Key Caching
+- Shared keys cached with timestamps
+- Public keys cached locally
+- Automatic cache invalidation
+
+### 2. Batch Operations
+- Multiple messages use same shared key
+- Efficient key derivation
+- Minimal cryptographic operations
+
+### 3. Network Efficiency
+- Compressed message format
+- Multiple delivery paths
+- Peer discovery optimization
+
+## Security Considerations
+
+### 1. Key Storage
+- Private keys never leave the browser
+- No server-side key storage
+- Memory-only key handling
+
+### 2. Network Security
+- End-to-end encryption
+- No plaintext transmission
+- Decentralized architecture
+
+### 3. Metadata Protection
+- Minimal metadata exposure
+- Encrypted message content
+- Anonymous peer-to-peer delivery
+
+This cryptographic system ensures that Kraken provides secure, private messaging over a decentralized network while maintaining usability and performance.
