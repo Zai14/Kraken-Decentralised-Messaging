@@ -62,7 +62,7 @@ Kraken is a secure, decentralized messaging application built on Web3 technologi
 
 ### 🚀 Deployment
 
-The application is deployed on Netlify at: (https://comforting-profiterole-5bbd1c.netlify.app/)
+The application is deployed on Netlify at: (https://resonant-unicorn-0d783d.netlify.app/)
 
 To deploy your own instance:
 1. Build the project: `npm run build`
